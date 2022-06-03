@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const UserSchema = new Schema ({
-  CredentialId: {
+  credentialId: {
     type: Schema.Types.ObjectId,
     ref: "Credentials"
   },
@@ -14,7 +14,7 @@ const UserSchema = new Schema ({
     type: String,
     required: true,
   },
-  DateOfBirth: {
+  dateOfBirth: {
     type: String,
     required: true
   },
