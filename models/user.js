@@ -18,6 +18,20 @@ const UserSchema = new Schema ({
     type: String,
     required: true
   },
+  notifications: [
+    {
+      medicineId: {
+        type: Schema.Types.ObjectId,
+        ref: "Medicine"
+      },
+      healthCenter: [
+        {
+          type: mongoose.ObjectId,
+          red: "HealthCenter"
+        }
+      ]
+    }
+  ]
 }, { timestamps: true })
 
-module.exports = mongoose.model("Employer", UserSchema)
+module.exports = mongoose.model("User", UserSchema)
