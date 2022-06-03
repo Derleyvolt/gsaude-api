@@ -1,27 +1,23 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
-const EmployersSchema = new Schema ({
-  nome: {
-    type: String,
-    required: true
+const UserSchema = new Schema ({
+  CredentialId: {
+    type: Schema.Types.ObjectId,
+    ref: "Credentials"
   },
-  email: {
+  name: {
     type: String,
     required: true
   },
   cpf: {
     type: String,
-    required: true
+    required: true,
   },
-  data_nascimento: {
+  DateOfBirth: {
     type: String,
     required: true
   },
-  senha: {
-    type: String,
-    required: true
-  },
-})
+}, { timestamps: true })
 
-module.exports = mongoose.model("Employer", EmployersSchema)
+module.exports = mongoose.model("Employer", UserSchema)

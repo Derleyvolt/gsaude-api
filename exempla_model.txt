@@ -44,3 +44,10 @@ nome : string
 email: string
 senha: string
 posto_id: posto_id
+
+
+credentions 
+id
+email
+senha
+healthCenterId:

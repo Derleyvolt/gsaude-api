@@ -1,20 +1,20 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
-const HealthCentersSchema = new Schema ({
-  nome: {
+const HealthCenterSchema = new Schema ({
+  name: {
     type: String,
     required: true
   },
-  endereco: {
-      type: String,
-      requered: true
-  },
-  telefone: {
+  address: {
     type: String,
     required: true
   },
-  horario: {
+  phone: {
+    type: String,
+    required: true
+  },
+  hour: {
     type: String,
     required: true
   },
@@ -26,6 +26,22 @@ const HealthCentersSchema = new Schema ({
     type: String,
     required: true
   },
-})
+  medicines: [
+    {
+      medicineId: {
+        type: Schema.Types.ObjectId,
+        ref: "Medicine"
+      },
+      amountAvailable: {
+        type: Number,
+        required: true
+      },
+      situation: {
+        type: String,
+        required: true
+      }
+    }
+  ]
+}, { timestamps: true })
 
-module.exports = mongoose.model("HealthCenter", HealthCentersSchema)
+module.exports = mongoose.model("HealthCenter", HealthCenterSchema)
