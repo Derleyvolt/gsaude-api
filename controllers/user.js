@@ -2,6 +2,32 @@ const userModel = require('../models/user')
 const credentialsModel = require('../models/credentials')
 const bcrypt = require('bcrypt')
 
+//login
+const login = async(req,res) => {
+  try {
+    const credential = await credentialsModel.findOne({ email: req.body.email })
+    
+    if(credential === null) {
+      res.status(200).json({type:'warning', message: "Usuário ou senha incorreto"})
+    }else {
+      const validPassword = await bcrypt.compare(req.body.password, credential.password)
+      if(!validPassword) {
+        res.status(200).json({type: 'warnig', message: 'Usuário ou senha incorreto'})
+      }else {
+        const user = await userModel.findOne({ credentialId: credential._id})
+        const { credentialId, ...others} = user._doc
+        if(credential.healthCenterId !== undefined) {
+          others.healthCenterId = credential.healthCenterId
+        }
+        res.status(200).json(others)
+      }
+    }
+
+  }catch(err) {
+    res.status(200).json(err)
+  }
+}
+
 // new user
 const newUser = async(req,res) => {
   try {
@@ -34,6 +60,7 @@ const newUser = async(req,res) => {
 }
 
 const userController = {
+  login,
   newUser
 }
 
