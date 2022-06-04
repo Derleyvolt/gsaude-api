@@ -3,6 +3,7 @@ const cors = require('cors')
 const dotenv = require('dotenv')
 
 const userRouter = require('./routers/user')
+const healthCenterRouter = require('./routers/healthCenter')
 
 const app = express()
 dotenv.config()
@@ -14,6 +15,7 @@ app.use(cors())
 require("./config/connection")
 
 app.use('/api/user/', userRouter)
+app.use('/api/healthCenter/', healthCenterRouter)
 
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Backend is running in ${process.env.PORT || 3000}`)

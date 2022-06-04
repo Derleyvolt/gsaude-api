@@ -28,8 +28,8 @@ const HealthCenterSchema = new Schema ({
   },
   medicines: [
     {
-      medicineId: {
-        type: Schema.Types.ObjectId,
+      medicine: {
+        type: Schema.ObjectId,
         ref: "Medicine"
       },
       amountAvailable: {

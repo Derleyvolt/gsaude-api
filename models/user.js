@@ -20,7 +20,7 @@ const UserSchema = new Schema ({
   },
   notifications: [
     {
-      medicineId: {
+      medicine: {
         type: Schema.Types.ObjectId,
         ref: "Medicine"
       },

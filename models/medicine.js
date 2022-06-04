@@ -9,7 +9,13 @@ const MedicineSchema = new Schema ({
   bula: {
     type: String,
     required: true
-  }
+  },
+  inventory: [
+    {
+      type: mongoose.ObjectId,
+      red: "HealthCenter"
+    }
+  ]
 }, { timestamps: true })
 
 module.exports = mongoose.model("Medicine", MedicineSchema)
