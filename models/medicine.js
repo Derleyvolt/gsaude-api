@@ -13,7 +13,7 @@ const MedicineSchema = new Schema ({
   inventory: [
     {
       type: mongoose.ObjectId,
-      red: "HealthCenter"
+      ref: "HealthCenter"
     }
   ]
 }, { timestamps: true })

@@ -27,7 +27,7 @@ const UserSchema = new Schema ({
       healthCenter: [
         {
           type: mongoose.ObjectId,
-          red: "HealthCenter"
+          ref: "HealthCenter"
         }
       ]
     }
