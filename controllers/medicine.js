@@ -3,7 +3,7 @@ const medicineModel = require("../models/medicine")
 // search medicine
 const getMedicine = async (req,res) => {
   try {
-    const select = "name latitude longitude medicines"
+    const select = "name latitude longitude medicines image"
     let medicineInfo = await medicineModel.findOne({ name: req.params.name })
       .populate({path:"inventory", select})
 
