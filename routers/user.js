@@ -11,4 +11,9 @@ router.post("/newUser", async(req,res) => {
   userController.newUser(req,res)
 })
 
+// send email to user
+router.post("/sendCode", async(req,res) => {
+  userController.sendCodeVerificationToUser(req,res)
+})
+
 module.exports = router

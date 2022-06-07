@@ -1,6 +1,8 @@
 const userModel = require('../models/user')
 const credentialsModel = require('../models/credentials')
+const codeVerificationModel = require('../models/codeVerification')
 const bcrypt = require('bcrypt')
+const nodemailer = require('nodemailer')
 
 //login
 const login = async(req,res) => {
@@ -59,9 +61,61 @@ const newUser = async(req,res) => {
   }
 }
 
+// send email to user
+const sendCodeVerificationToUser = async(req,res) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: "gsaudeapp@gmail.com",
+        pass: process.env.PASSWORDAPP
+      }
+    })
+
+    let active = false
+    let code
+    while(active != true) {
+      code = Math.floor(Math.random() * 9999 + 1)
+      let response = await codeVerificationModel.findOne({ code })
+      if(response == null) {
+        const newCode = new codeVerificationModel({ code })
+        await newCode.save()
+        active = true
+
+      }else {
+        active = false
+      }
+    }
+
+    const emailOption = {
+      from: "gsaudeapp@gmail.com",
+      to: req.body.email,
+      subject: "Código de verificação",
+      html: `
+        <div style="border:1px solid #dadce0; border-radius:8px; padding:40px 20px;">
+          <center>
+            <div style="border-bottom:1px solid #dadce0;">
+              <h1>Bem-vindo ao Gsaúde !</h1>
+            </div>
+            <p>
+              Seu código é <strong>${code}</strong> 
+            </p>
+          </center>
+        </div>
+      `
+    }
+    transporter.sendMail(emailOption)
+    res.status(200).json({ message: "email has been send" })
+
+  }catch(err) {
+    res.status(500).json(err)
+  }
+}
+
 const userController = {
   login,
-  newUser
+  newUser,
+  sendCodeVerificationToUser
 }
 
 module.exports = { userController }
