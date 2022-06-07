@@ -26,7 +26,7 @@ const login = async(req,res) => {
     }
 
   }catch(err) {
-    res.status(200).json(err)
+    res.status(500).json(err)
   }
 }
 
@@ -112,10 +112,52 @@ const sendCodeVerificationToUser = async(req,res) => {
   }
 }
 
+const validateVerificationCode = async(req,res) => {
+  try {
+    const code = await codeVerificationModel.findOne({ code: req.params.code })
+
+    if(code == null || code.active == false) {
+      res.status(200).json({ message: "código inválido", type: "erro"})
+    }
+
+    const timeoutInMinutes = 3
+    const dateCode = new Date(code.createdAt)
+    const dayCode = dateCode.getDate()
+    const hourCode = dateCode.getHours()
+    const minutesCode = dateCode.getMinutes()
+    const monthCode = dateCode.getMonth()
+    const yearCode = dateCode.getFullYear()
+
+    const currentDate = new Date()
+    
+    if( (yearCode == currentDate.getFullYear())                       &&
+        (monthCode == currentDate.getMonth())                         && 
+        (dayCode == currentDate.getDate())                            &&
+        (hourCode == currentDate.getHours())                          &&
+        (minutesCode + timeoutInMinutes >= currentDate.getMinutes())
+      ){
+
+        await codeVerificationModel.updateOne(
+          { 'code': req.params.code },
+          { 'active': false}
+        )
+        res.status(200).json({ message: "código é válido", type:"success"})
+
+    }else {
+      res.status(200).json({ message: "código inválido", type:"erro" })
+    }
+
+  }catch(err) {
+    res.status(500).json(err)
+  }
+
+}
+
 const userController = {
   login,
   newUser,
-  sendCodeVerificationToUser
+  sendCodeVerificationToUser,
+  validateVerificationCode
 }
 
 module.exports = { userController }

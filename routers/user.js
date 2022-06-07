@@ -16,4 +16,9 @@ router.post("/sendCode", async(req,res) => {
   userController.sendCodeVerificationToUser(req,res)
 })
 
+// validate verification code
+router.get("/validateVerificationCode/:code", async(req,res) => {
+  userController.validateVerificationCode(req,res)
+})
+
 module.exports = router
