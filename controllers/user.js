@@ -153,11 +153,51 @@ const validateVerificationCode = async(req,res) => {
 
 }
 
+const getNotifications = async(req,res) => {
+  try {
+    const selectUser = "_id name"
+    const selectMedicine = "_id name inventory"
+    const selectHealthCenter = "_id name medicines latitude longitude"
+    let user = await userModel.findOne({_id: req.params.userId}, selectUser)
+      .populate({ path:"notifications.medicine", select:selectMedicine })
+      .populate({ path:"notifications.healthCenter", select:selectHealthCenter })
+
+    user = user.toObject()
+    userCopy = JSON.parse(JSON.stringify(user))
+
+    user.notifications.forEach((notification,indexNotification) => {
+      notification.healthCenter.forEach((healthCenter,indexHealthCenter) => {
+        let haveMedicine = false
+        healthCenter.medicines.forEach((medicine) => {
+          if((medicine.medicine.toString() == notification.medicine._id.toString()) && (medicine.situation == "available")) {
+            haveMedicine = true
+          }
+        })
+        if(haveMedicine == false) {
+          userCopy.notifications[indexNotification].healthCenter.splice(indexHealthCenter,1)
+        }
+      })
+    })
+    
+    userCopy.notifications.forEach((element,index) => {
+      if(element.healthCenter.length == 0) {
+        userCopy.notifications.splice(index,1)
+      }
+    })
+
+    res.status(200).json(userCopy)
+
+  }catch(err) {
+    res.status(500).json(err)
+  }
+}
+
 const userController = {
   login,
   newUser,
   sendCodeVerificationToUser,
-  validateVerificationCode
+  validateVerificationCode,
+  getNotifications
 }
 
 module.exports = { userController }

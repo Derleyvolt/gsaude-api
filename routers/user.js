@@ -21,4 +21,8 @@ router.get("/validateVerificationCode/:code", async(req,res) => {
   userController.validateVerificationCode(req,res)
 })
 
+router.get("/getNotifications/:userId", async(req,res) => {
+  userController.getNotifications(req,res)
+})
+
 module.exports = router
