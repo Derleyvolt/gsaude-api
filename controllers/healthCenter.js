@@ -45,9 +45,45 @@ const getHealthCenter = async(req,res) => {
   }
 }
 
+// updating the amount of medicines
+const updateAmountMedicine = async(req,res) => {
+  try {
+    const healthCenter = await healthCenterModel.findById(req.body.healthCenterId)
+    console.log(healthCenter)
+    if(req.body.amount == 0) {
+      await healthCenter.updateOne(
+        { 
+          'medicines.medicine': req.body.medicineId,
+          // '_id': req.body.healthCenterId
+        }, 
+        {
+          '$set': {
+            'medicines.$.amountAvailable': req.body.amount,
+            'medicines.$.situation': 'missing'
+          }
+        }
+      )
+    }else {
+      await healthCenter.updateOne({'medicines.medicine': req.body.medicineId}, 
+        {
+          '$set': {
+            'medicines.$.amountAvailable': req.body.amount
+          }
+        }
+      )
+    }
+
+    res.status(200).json({ message: "medicine updated", type: "success"})
+  }
+  catch(err) {
+    res.status(500).json(err)
+  }
+}
+
 const healthCenterController = {
   addMedicine,
   getHealthCenter,
+  updateAmountMedicine
 }
 
 module.exports = { healthCenterController }

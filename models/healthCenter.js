@@ -33,7 +33,7 @@ const HealthCenterSchema = new Schema ({
   medicines: [
     {
       medicine: {
-        type: Schema.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Medicine"
       },
       amountAvailable: {
