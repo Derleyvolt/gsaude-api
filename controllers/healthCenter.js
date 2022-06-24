@@ -48,13 +48,11 @@ const getHealthCenter = async(req,res) => {
 // updating the amount of medicines
 const updateAmountMedicine = async(req,res) => {
   try {
-    const healthCenter = await healthCenterModel.findById(req.body.healthCenterId)
-    console.log(healthCenter)
     if(req.body.amount == 0) {
-      await healthCenter.updateOne(
+      await healthCenterModel.updateOne(
         { 
           'medicines.medicine': req.body.medicineId,
-          // '_id': req.body.healthCenterId
+          '_id': req.body.healthCenterId
         }, 
         {
           '$set': {
@@ -64,7 +62,10 @@ const updateAmountMedicine = async(req,res) => {
         }
       )
     }else {
-      await healthCenter.updateOne({'medicines.medicine': req.body.medicineId}, 
+      await healthCenterModel.updateOne({
+        'medicines.medicine': req.body.medicineId,
+        '_id': req.body.healthCenterId
+      },
         {
           '$set': {
             'medicines.$.amountAvailable': req.body.amount
