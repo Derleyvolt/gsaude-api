@@ -1,8 +1,12 @@
 const router = require('express').Router()
 const { userController } = require("../controllers/user")
 
+router.post("/notification", async(req,res) => {
+  userController.addNotification(req, res);
+})
+
 // Login
-router.post("/login", async(req,res) => {
+router.get("/login", async(req,res) => {
   userController.login(req,res)
 })
 
