@@ -21,7 +21,7 @@ const login = async(req,res) => {
         if(credential.healthCenterId !== undefined) {
           others.healthCenterId = credential.healthCenterId
         }
-        res.status(200).json(others)
+        res.status(200).json({type: "success" , user: others})
       }
     }
 

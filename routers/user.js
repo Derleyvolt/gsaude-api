@@ -2,7 +2,7 @@ const router = require('express').Router()
 const { userController } = require("../controllers/user")
 
 // Login
-router.get("/login", async(req,res) => {
+router.post("/login", async(req,res) => {
   userController.login(req,res)
 })
 
