@@ -3,6 +3,7 @@ const credentialsModel = require('../models/credentials')
 const codeVerificationModel = require('../models/codeVerification')
 const bcrypt = require('bcrypt')
 const nodemailer = require('nodemailer')
+const user = require('../models/user')
 
 //login
 const login = async(req,res) => {
@@ -21,13 +22,87 @@ const login = async(req,res) => {
         if(credential.healthCenterId !== undefined) {
           others.healthCenterId = credential.healthCenterId
         }
-        res.status(200).json({type: "success" , user: others})
+        res.status(200).json(others)
       }
     }
 
   }catch(err) {
     res.status(500).json(err)
   }
+}
+
+const addNotification = async(req, res) => {
+
+  console.log(typeof req.body.credentialId)
+  const ttt = await userModel.findOne({ credentialId : req.body.credentialId }) 
+
+  // se não existir eu retorno OK com mensagem de erro
+  if(ttt === undefined) {
+    res.status(200).json({type:'warning', message: "O usuário não existe"})
+  } else {
+    // caso exista o tal usuário
+
+    // verifico se já existe uma notificação com aquele remédio
+    let notf = ttt.notifications.find(e => e.medicine.type == req.body.medicine_id)
+    
+    // caso não exista
+    if(notf === undefined) {
+      // let obj = { medicine:     { type: req.body.medicine_id,     ref:"Medicine" },
+      //         healthCenter: [{ type: req.body.healthCenter_id, ref:"HealthCenter" }] }
+
+      // ttt.notifications.push({ medicine:     { type: req.body.medicine_id, ref:"Medicine" },
+      //                          healthCenter: [{ type: req.body.healthCenter_id, ref:"HealthCenter" }] })
+
+      ttt.notifications[0] = { medicine:     { type: req.body.medicine_id, ref:"Medicine" },
+      healthCenter: [{ type: req.body.healthCenter_id, ref:"HealthCenter" }] };
+
+      ttt.notifications[1] = { medicine:     { type: req.body.medicine_id, ref:"Medicine" },
+      healthCenter: [{ type: req.body.healthCenter_id, ref:"HealthCenter" }] };
+
+      console.log(ttt)
+    } else {  
+      // caso exista
+      notf.healthCenter.push({ type: req.body.healthCenter_id, ref:"HealthCenter" })
+    }
+
+    console.log(userModel.UserSchema)
+    console.log(ttt.notifications[0].medicine)
+   
+    res.status(200).json({ message: "notification added with sucess", type: "success" })
+  }
+
+
+  // try {
+  //   // verifico se o usuário com determinado id existe
+  //   console.log(typeof req.body.credentialId)
+  //   const ttt = await userModel.findOne({ credentialId : req.body.credentialId }) 
+
+  //   // se não existir eu retorno OK com mensagem de erro
+  //   if(ttt === undefined) {
+  //     res.status(200).json({type:'warning', message: "O usuário não existe"})
+  //   } else {
+  //     // caso exista o tal usuário
+
+  //     // verifico se já existe uma notificação com aquele remédio
+  //     let notf = ttt.notification.find(e => e.medicine.type == red.body.medicine_id)
+      
+  //     // caso não exista
+  //     if(notf == undefined) {
+  //       obj = { medicine:     { type: red.body.medicine_id,     ref:"Medicine" },
+  //               healthCenter: { type: red.body.healthCenter_id, ref:"HealthCenter" } }
+
+  //       ttt.notification.push(obj)
+  //     } else {  
+  //       // caso exista
+  //       notf.healthCenter.push({ type: red.body.healthCenter_id, ref:"HealthCenter" })
+  //     }
+     
+  //     res.status(200).json({ message: "notification added with sucess", type: "success" })
+  //   }
+  // } catch(err) {
+  //   console.log("Erro")
+  //   res.status(500).json(err)
+  // }
 }
 
 // new user
@@ -72,46 +147,40 @@ const sendCodeVerificationToUser = async(req,res) => {
       }
     })
 
-    let responseCredential = await credentialsModel.findOne({ email: req.body.email })
-    if(responseCredential != null) {
-      res.status(200).json({ message: 'email já cadastrado', type: 'emailExist'})
-    }else {
-      let active = false
-      let code
-      while(active != true) {
-        code = Math.floor(Math.random() * 9999 + 1)
-        let responseCode = await codeVerificationModel.findOne({ code })
-        if(responseCode == null) {
-          const newCode = new codeVerificationModel({ code })
-          await newCode.save()
-          active = true
-        }else {
-          active = false
-        }
-      }
+    let active = false
+    let code
+    while(active != true) {
+      code = Math.floor(Math.random() * 9999 + 1)
+      let response = await codeVerificationModel.findOne({ code })
+      if(response == null) {
+        const newCode = new codeVerificationModel({ code })
+        await newCode.save()
+        active = true
 
-      const emailOption = {
-        from: "gsaudeapp@gmail.com",
-        to: req.body.email,
-        subject: "Código de verificação",
-        html: `
-          <div style="border:1px solid #dadce0; border-radius:8px; padding:40px 20px;">
-            <center>
-              <div style="border-bottom:1px solid #dadce0;">
-                <h1>Bem-vindo ao Gsaúde !</h1>
-              </div>
-              <p>
-                Seu código é <strong>${code}</strong> 
-              </p>
-            </center>
-          </div>
-        `
+      }else {
+        active = false
       }
-      transporter.sendMail(emailOption)
-      res.status(200).json({ message: "email has been send", type: "success" })
     }
 
-    
+    const emailOption = {
+      from: "gsaudeapp@gmail.com",
+      to: req.body.email,
+      subject: "Código de verificação",
+      html: `
+        <div style="border:1px solid #dadce0; border-radius:8px; padding:40px 20px;">
+          <center>
+            <div style="border-bottom:1px solid #dadce0;">
+              <h1>Bem-vindo ao Gsaúde !</h1>
+            </div>
+            <p>
+              Seu código é <strong>${code}</strong> 
+            </p>
+          </center>
+        </div>
+      `
+    }
+    transporter.sendMail(emailOption)
+    res.status(200).json({ message: "email has been send" })
 
   }catch(err) {
     res.status(500).json(err)
@@ -124,34 +193,35 @@ const validateVerificationCode = async(req,res) => {
 
     if(code == null || code.active == false) {
       res.status(200).json({ message: "código inválido", type: "erro"})
-    }else {
-      const timeoutInMinutes = 3
-      const dateCode = new Date(code.createdAt)
-      const dayCode = dateCode.getDate()
-      const hourCode = dateCode.getHours()
-      const minutesCode = dateCode.getMinutes()
-      const monthCode = dateCode.getMonth()
-      const yearCode = dateCode.getFullYear()
-
-      const currentDate = new Date()
-      
-      if( (yearCode == currentDate.getFullYear())                       &&
-          (monthCode == currentDate.getMonth())                         && 
-          (dayCode == currentDate.getDate())                            &&
-          (hourCode == currentDate.getHours())                          &&
-          (minutesCode + timeoutInMinutes >= currentDate.getMinutes())
-        ){
-
-          await codeVerificationModel.updateOne(
-            { 'code': req.params.code },
-            { 'active': false}
-          )
-          res.status(200).json({ message: "código é válido", type:"success"})
-
-      }else {
-        res.status(200).json({ message: "código inválido", type:"erro" })
-      }
     }
+
+    const timeoutInMinutes = 3
+    const dateCode = new Date(code.createdAt)
+    const dayCode = dateCode.getDate()
+    const hourCode = dateCode.getHours()
+    const minutesCode = dateCode.getMinutes()
+    const monthCode = dateCode.getMonth()
+    const yearCode = dateCode.getFullYear()
+
+    const currentDate = new Date()
+    
+    if( (yearCode == currentDate.getFullYear())                       &&
+        (monthCode == currentDate.getMonth())                         && 
+        (dayCode == currentDate.getDate())                            &&
+        (hourCode == currentDate.getHours())                          &&
+        (minutesCode + timeoutInMinutes >= currentDate.getMinutes())
+      ){
+
+        await codeVerificationModel.updateOne(
+          { 'code': req.params.code },
+          { 'active': false}
+        )
+        res.status(200).json({ message: "código é válido", type:"success"})
+
+    }else {
+      res.status(200).json({ message: "código inválido", type:"erro" })
+    }
+
   }catch(err) {
     res.status(500).json(err)
   }
@@ -202,7 +272,8 @@ const userController = {
   newUser,
   sendCodeVerificationToUser,
   validateVerificationCode,
-  getNotifications
+  getNotifications,
+  addNotification
 }
 
 module.exports = { userController }
