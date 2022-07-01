@@ -174,7 +174,7 @@ const getNotifications = async(req,res) => {
       notification.healthCenter.forEach((healthCenter,indexHealthCenter) => {
         let haveMedicine = false
         healthCenter.medicines.forEach((medicine) => {
-          if((medicine.medicine.toString() == notification.medicine._id.toString()) && (medicine.situation == "available")) {
+          if((medicine.medicine?.toString() == notification.medicine._id?.toString()) && (medicine.situation == "available")) {
             haveMedicine = true
           }
         })
