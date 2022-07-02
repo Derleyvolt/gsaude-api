@@ -1,8 +1,8 @@
 const router = require('express').Router()
 const { userController } = require("../controllers/user")
 
-router.post("/listHeathCenters", async(req,res) => {
-  userController.addNotification(req, res);
+router.get("/listHeathCenters", async(req,res) => {
+  userController.listHealthCenter(req, res);
 })
 
 router.post("/notification", async(req,res) => {
