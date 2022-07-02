@@ -47,18 +47,13 @@ const listHealthCenter = async(req, res) => {
 const addNotification = async(req, res) => {
   const user_result = await userModel.findOne({ credentialId : req.body.credentialId }) 
   
-  // se não existir eu retorno OK com mensagem de erro
   if(user_result == null) {
     res.status(200).json({type:"alerta", message: "O usuário não existe"})
   } else {
-    // caso exista o tal usuário
-  
-    // verifico se já existe uma notificação com aquele remédio
     let notif_result = user_result.notifications.find(e => e.medicine == req.body.medicine_id)
     
     let arr_temp = []
     if(notif_result === undefined) {
-
       arr_temp.push({ medicine : req.body.medicine_id, healthCenter : req.body.healthCenter_id })
 
       await userModel.updateOne({ credentialId: req.body.credentialId }, {
@@ -66,12 +61,12 @@ const addNotification = async(req, res) => {
       })
 
     } else {  
-      arr_temp = [...user_result.notifications]
+      arr_temp = [...notif_result.healthCenter]
 
       arr_temp.push(req.body.healthCenter_id)
 
       await userModel.updateOne({ credentialId: req.body.credentialId }, {
-        notifications : [ ...arr_temp ]
+        notifications : [ { medicine: req.body.medicine_id, healthCenter: arr_temp } ]
       })
     }
 
