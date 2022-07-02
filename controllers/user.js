@@ -31,78 +31,52 @@ const login = async(req,res) => {
   }
 }
 
+const listHealthCenter = async(req, res) => {
+  // req.body.lat
+  // req.body.lon
+  // req.body.healthCenterName
+  
+  // retorno {  }
+
+  const healthCenter = await healthCenterModel.find({name: req.body.healthCenterName})
+
+  
+
+}
+
 const addNotification = async(req, res) => {
-
-  console.log(typeof req.body.credentialId)
-  const ttt = await userModel.findOne({ credentialId : req.body.credentialId }) 
-
+  const user_result = await userModel.findOne({ credentialId : req.body.credentialId }) 
+  
   // se não existir eu retorno OK com mensagem de erro
-  if(ttt === undefined) {
-    res.status(200).json({type:'warning', message: "O usuário não existe"})
+  if(user_result == null) {
+    res.status(200).json({type:"alerta", message: "O usuário não existe"})
   } else {
     // caso exista o tal usuário
-
+  
     // verifico se já existe uma notificação com aquele remédio
-    let notf = ttt.notifications.find(e => e.medicine.type == req.body.medicine_id)
+    let notif_result = user_result.notifications.find(e => e.medicine == req.body.medicine_id)
     
-    // caso não exista
-    if(notf === undefined) {
-      // let obj = { medicine:     { type: req.body.medicine_id,     ref:"Medicine" },
-      //         healthCenter: [{ type: req.body.healthCenter_id, ref:"HealthCenter" }] }
+    let arr_temp = []
+    if(notif_result === undefined) {
 
-      // ttt.notifications.push({ medicine:     { type: req.body.medicine_id, ref:"Medicine" },
-      //                          healthCenter: [{ type: req.body.healthCenter_id, ref:"HealthCenter" }] })
+      arr_temp.push({ medicine : req.body.medicine_id, healthCenter : req.body.healthCenter_id })
 
-      ttt.notifications[0] = { medicine:     { type: req.body.medicine_id, ref:"Medicine" },
-      healthCenter: [{ type: req.body.healthCenter_id, ref:"HealthCenter" }] };
+      await userModel.updateOne({ credentialId: req.body.credentialId }, {
+        notifications : [ ...arr_temp ]
+      })
 
-      ttt.notifications[1] = { medicine:     { type: req.body.medicine_id, ref:"Medicine" },
-      healthCenter: [{ type: req.body.healthCenter_id, ref:"HealthCenter" }] };
-
-      console.log(ttt)
     } else {  
-      // caso exista
-      notf.healthCenter.push({ type: req.body.healthCenter_id, ref:"HealthCenter" })
+      arr_temp = [...user_result.notifications]
+
+      arr_temp.push(req.body.healthCenter_id)
+
+      await userModel.updateOne({ credentialId: req.body.credentialId }, {
+        notifications : [ ...arr_temp ]
+      })
     }
 
-    console.log(userModel.UserSchema)
-    console.log(ttt.notifications[0].medicine)
-   
-    res.status(200).json({ message: "notification added with sucess", type: "success" })
+    res.status(200).json({ message: "notificacão adicionada com sucesso", type: "sucesso" })
   }
-
-
-  // try {
-  //   // verifico se o usuário com determinado id existe
-  //   console.log(typeof req.body.credentialId)
-  //   const ttt = await userModel.findOne({ credentialId : req.body.credentialId }) 
-
-  //   // se não existir eu retorno OK com mensagem de erro
-  //   if(ttt === undefined) {
-  //     res.status(200).json({type:'warning', message: "O usuário não existe"})
-  //   } else {
-  //     // caso exista o tal usuário
-
-  //     // verifico se já existe uma notificação com aquele remédio
-  //     let notf = ttt.notification.find(e => e.medicine.type == red.body.medicine_id)
-      
-  //     // caso não exista
-  //     if(notf == undefined) {
-  //       obj = { medicine:     { type: red.body.medicine_id,     ref:"Medicine" },
-  //               healthCenter: { type: red.body.healthCenter_id, ref:"HealthCenter" } }
-
-  //       ttt.notification.push(obj)
-  //     } else {  
-  //       // caso exista
-  //       notf.healthCenter.push({ type: red.body.healthCenter_id, ref:"HealthCenter" })
-  //     }
-     
-  //     res.status(200).json({ message: "notification added with sucess", type: "success" })
-  //   }
-  // } catch(err) {
-  //   console.log("Erro")
-  //   res.status(500).json(err)
-  // }
 }
 
 // new user
