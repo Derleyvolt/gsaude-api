@@ -1,32 +1,42 @@
 const healthCenterModel = require('../models/healthCenter')
 const medicineModel = require('../models/medicine')
 
-// add medicine in a health center
-const addMedicine = async(req,res) => {
+function deg2rad(deg) {
+  return deg * (Math.PI / 180)
+}
+
+function getDistance(lat1, lon1, lat2, lon2) {
+  var R = 6371; // Radius of the earth in kilometers
+  var dLat = deg2rad(lat2 - lat1); // deg2rad below
+  var dLon = deg2rad(lon2 - lon1);
+  var a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  var d = R * c; // Distance in KM
+  return d;
+}
+
+const listHealthCenter = async(req, res) => {
   try {
-    await healthCenterModel.updateOne(
-      { '_id': req.body.healthCenterId },
-      {
-        '$push': {
-          'medicines': {
-            medicine: req.body.medicine,
-            amountAvailable: req.body.amountAvailable,
-            situation: "available"
-          }
-        }
-      }
-    )
+    const healthCenterList = await healthCenterModel.find({name: req.body.healthCenterName})
+      
+    let result = []
 
-    await medicineModel.updateOne(
-      { '_id': req.body.medicine},
-      {
-        '$push': {
-          'inventory': req.body.healthCenterId
-        }
+    for(let hc of healthCenterList) {
+      if(req.body.latitude == undefined || req.body.longitude == undefined) {
+        result.push({ Name: hc.name, latitude: hc.latitude, longitude: hc.longitude, 
+                      Message: "não foi possivel calcular a distancia" })
+      } else {
+        result.push({ Name: hc.name, latitude: hc.latitude, longitude: hc.longitude, 
+                      Distance: getDistance(parseFloat(req.body.latitude), parseFloat(req.body.longitude), 
+                      parseFloat(hc.latitude), parseFloat(hc.longitude)) })
       }
-    )
+    }
+    
+    res.status(200).json(result)
 
-    res.status(200).json({ message: "ok" })
   }catch(err) {
     res.status(500).json(err)
   }
@@ -45,46 +55,9 @@ const getHealthCenter = async(req,res) => {
   }
 }
 
-// updating the amount of medicines
-const updateAmountMedicine = async(req,res) => {
-  try {
-    if(req.body.amount == 0) {
-      await healthCenterModel.updateOne(
-        { 
-          'medicines.medicine': req.body.medicineId,
-          '_id': req.body.healthCenterId
-        }, 
-        {
-          '$set': {
-            'medicines.$.amountAvailable': req.body.amount,
-            'medicines.$.situation': 'missing'
-          }
-        }
-      )
-    }else {
-      await healthCenterModel.updateOne({
-        'medicines.medicine': req.body.medicineId,
-        '_id': req.body.healthCenterId
-      },
-        {
-          '$set': {
-            'medicines.$.amountAvailable': req.body.amount
-          }
-        }
-      )
-    }
-
-    res.status(200).json({ message: "medicine updated", type: "success"})
-  }
-  catch(err) {
-    res.status(500).json(err)
-  }
-}
-
 const healthCenterController = {
-  addMedicine,
   getHealthCenter,
-  updateAmountMedicine
+  listHealthCenter
 }
 
 module.exports = { healthCenterController }
