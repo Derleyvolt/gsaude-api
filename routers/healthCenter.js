@@ -16,4 +16,8 @@ router.put("/updateAmountMedicine", async(req,res) => {
   healthCenterController.updateAmountMedicine(req,res)
 })
 
+router.get("/getAmountMedicines/:healthCenterId", async(req,res) => {
+  healthCenterController.getAmountMedicines(req,res)
+})
+
 module.exports = router

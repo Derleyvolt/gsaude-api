@@ -81,10 +81,35 @@ const updateAmountMedicine = async(req,res) => {
   }
 }
 
+const getAmountMedicines = async(req,res) => {
+  try {
+    const healthCenter = await healthCenterModel.findOne({ _id: req.params.healthCenterId}, "name medicines")
+      .populate({path:"medicines.medicine", select: "name"})
+
+    const medicineAvailable = healthCenter.medicines.filter(element => element.situation == "available")
+    const medicineComing = healthCenter.medicines.filter(element => element.situation == "coming")
+    const medicineMissing = healthCenter.medicines.filter(element => element.situation == "missing")
+
+    res.status(200).json({
+      type:"success",
+      data: {
+        available: medicineAvailable.length,
+        coming: medicineComing.length,
+        missing: medicineMissing.length
+      }
+    })
+
+  }catch(err) {
+    res.status(500).json(err)
+    console.log(err)
+  }
+}
+
 const healthCenterController = {
   addMedicine,
   getHealthCenter,
-  updateAmountMedicine
+  updateAmountMedicine,
+  getAmountMedicines
 }
 
 module.exports = { healthCenterController }
