@@ -4,7 +4,6 @@ const codeVerificationModel = require('../models/codeVerification')
 const bcrypt = require('bcrypt')
 const nodemailer = require('nodemailer')
 const user = require('../models/user')
-const healthCenter = require('../models/healthCenter')
 
 //login
 const login = async(req,res) => {
@@ -27,55 +26,6 @@ const login = async(req,res) => {
       }
     }
 
-  } catch(err) {
-    res.status(500).json(err)
-  }
-}
-
-function deg2rad(deg) {
-  return deg * (Math.PI / 180)
-}
-
-function getDistance(lat1, lon1, lat2, lon2) {
-  var R = 6371; // Radius of the earth in kilometers
-  var dLat = deg2rad(lat2 - lat1); // deg2rad below
-  var dLon = deg2rad(lon2 - lon1);
-  var a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  var d = R * c; // Distance in KM
-  return d;
-}
-
-
-const listHealthCenter = async(req, res) => {
-  try {
-    
-    if(req.body.latitude == undefined || req.body.longitude == undefined) {
-      res.status(500).json([
-        {
-          Name:      "",
-          Latitude:  "",
-          Longitude: "",
-          Distance:  "",
-          Message:   "não foi possivel calcular a distancia"
-        }
-      ])
-    } else {
-        const healthCenterList = await healthCenter.find({name: req.body.healthCenterName})
-      
-        let result = []
-
-        for(let hc of healthCenterList) {
-          result.push({ Name: hc.name, latitude: hc.latitude, longitude: hc.longitude, 
-                        Distance: getDistance(parseFloat(req.body.latitude), parseFloat(req.body.longitude), 
-                        parseFloat(hc.latitude), parseFloat(hc.longitude)) })
-        }
-        
-        res.status(200).json(result)
-      }
   } catch(err) {
     res.status(500).json(err)
   }
@@ -279,8 +229,7 @@ const userController = {
   sendCodeVerificationToUser,
   validateVerificationCode,
   getNotifications,
-  addNotification,
-  listHealthCenter
+  addNotification
 }
 
 module.exports = { userController }
