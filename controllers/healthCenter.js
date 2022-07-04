@@ -105,11 +105,40 @@ const getAmountMedicines = async(req,res) => {
   }
 }
 
+const listMedicine = async(req, res) => {
+  
+  try {
+    const healthCenterResult = await healthCenterModel.findOne({_id: req.params.healthCenterId})
+    console.log(healthCenterResult)
+    if(healthCenterResult == null) {
+      res.status(500).json({ type: "error", message: "Nao existem esse posto"})
+    } else {
+      if(req.body.type == 'available') {
+        const available_medicines = await healthCenterResult.medicines.filter((e) => e.situation == "available")
+        res.status(200).json(available_medicines)
+
+      } else if(req.body.type == 'missing') {
+        const missing_medicines = await healthCenterResult.medicines.filter((e) => e.situation == "missing")
+        res.status(200).json(missing_medicines)
+
+      } else if(req.body.type == 'coming') {
+        const coming_medicines = await healthCenterResult.medicines.filter((e) => e.situation == "coming")
+        res.status(200).json(coming_medicines)
+      }else {
+        res.status(200).json(healthCenterResult.medicines)
+      }
+    }
+  }catch(err) {
+    res.status(500).json(err)
+  }
+}
+
 const healthCenterController = {
   addMedicine,
   getHealthCenter,
   updateAmountMedicine,
-  getAmountMedicines
+  getAmountMedicines,
+  listMedicine
 }
 
 module.exports = { healthCenterController }

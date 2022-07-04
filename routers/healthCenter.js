@@ -20,4 +20,8 @@ router.get("/getAmountMedicines/:healthCenterId", async(req,res) => {
   healthCenterController.getAmountMedicines(req,res)
 })
 
+router.get("/listMedicines/:healthCenterId", async(req,res) => {
+  healthCenterController.listMedicine(req,res)
+})
+
 module.exports = router
