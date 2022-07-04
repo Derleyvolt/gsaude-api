@@ -1,6 +1,10 @@
 const router = require('express').Router()
 const { healthCenterController } = require('../controllers/healthCenter')
 
+router.get("/listMedicine/:type", async(req,res) => {
+  healthCenterController.listMedicine(req, res);
+})
+
 // add a medicine in a health center 
 router.post("/addMedicine", async(req,res) => {
   healthCenterController.addMedicine(req,res)
@@ -9,11 +13,6 @@ router.post("/addMedicine", async(req,res) => {
 // get a health center 
 router.get("/:id", async(req,res) => {
   healthCenterController.getHealthCenter(req,res)
-})
-
-// updating the amount of medicines
-router.put("/updateAmountMedicine", async(req,res) => {
-  healthCenterController.updateAmountMedicine(req,res)
 })
 
 module.exports = router
