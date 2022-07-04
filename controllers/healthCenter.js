@@ -1,31 +1,28 @@
 const healthCenterModel = require('../models/healthCenter')
 const medicineModel = require('../models/medicine')
-var mongoose = require('mongoose'); // pra tentar a conversão da linha 10
 
 const listMedicine = async(req, res) => {
   // recebo healthCenterId
   // e um parâmetro
-  console.log(req.body.healthCenterId)
-
-  const healthCenterResult = await healthCenterModel.findOne({_id: mongoose.Types.ObjectId(req.body.healthCenterId)})
+  const healthCenterResult = await healthCenterModel.findOne({_id: req.body.healthCenterId})
 
   if(healthCenterResult == undefined) {
-    res.status(500).json({ type: "Erro", message: "Nao existem posto com esse id"})
+    res.status(500).json({ type: "Erro", message: "Nao existe posto com esse id"})
   } else {
     if(req.params.type == '1') {
       //listar remédios disponíveis
 
-      const available_medicines = await healthCenterResult.filter((e) => e.situation.type == "available")
-      res.status(200).json(healthCenterResult.medicines)
+      const available_medicines = await healthCenterResult.medicines.filter((e) => e.situation == "available")
+      res.status(200).json(available_medicines)
     } else if(req.params.type == '2') {
       //remédios em falta
-  
-      const missing_medicines = await healthCenterResult.filter((e) => e.situation.type == "missing")
+
+      const missing_medicines = await healthCenterResult.medicines.filter((e) => e.situation == "missing")
       res.status(200).json(missing_medicines)
     } else if(req.params.type == '3') {
       //remédios chegando
     
-      const coming_medicines = await healthCenterResult.filter((e) => e.situation.type == "coming")
+      const coming_medicines = await healthCenterResult.medicines.filter((e) => e.situation == "coming")
       res.status(200).json(coming_medicines)
     }
   }
