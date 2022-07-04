@@ -24,4 +24,8 @@ router.get("/listMedicines/:healthCenterId", async(req,res) => {
   healthCenterController.listMedicine(req,res)
 })
 
+router.get("/listHealthCenter/:healthCenterId", async(req,res) => {
+  healthCenterController.listHealthCenter(req,res)
+})
+
 module.exports = router
