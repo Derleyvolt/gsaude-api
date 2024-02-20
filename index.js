@@ -19,6 +19,8 @@ app.use('/api/user/', userRouter)
 app.use('/api/healthCenter/', healthCenterRouter)
 app.use('/api/medicine/', medicineRouter)
 
+// s
+
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Backend is running in ${process.env.PORT || 3000}`)
 })
